@@ -19,7 +19,7 @@ const (
 func CrawlPostUrls(page string) []string {
 	url := fmt.Sprintf("https://so.news.cn/?lang=en#search/1/Huawei/" + page + "/0")
 
-	fmt.Println("Crawling", url)
+	fmt.Println("Crawling url page", url)
 
 	alloc, cancel := browser.AllocateDockerContext() // use docker context
 	defer cancel()
@@ -130,7 +130,7 @@ func Crawl() {
 	for page := 0; page < maxPage; page++ {
 		fmt.Println("Crawling page", page+1)
 
-		urls := CrawlPostUrls(strconv.Itoa(page))
+		urls := CrawlPostUrls(strconv.Itoa(page + 1))
 
 		for _, url := range urls {
 			fmt.Println("Crawling", url)
