@@ -39,23 +39,15 @@ func CrawlPostUrls(page string) []string {
 		panic(err)
 	}
 
-	var filtered1 []string
+	var filtered []string
 
 	for _, href := range hrefs {
 		if len(href) > 50 {
-			filtered1 = append(filtered1, href)
+			filtered = append(filtered, href)
 		}
 	}
 
-	var filtered2 []string
-
-	for i, href := range filtered1 {
-		if i%2 == 0 {
-			filtered2 = append(filtered2, href)
-		}
-	}
-
-	return filtered2
+	return filtered
 }
 
 func CrawlPostContent(url string) (string, string, string, string, string) {
