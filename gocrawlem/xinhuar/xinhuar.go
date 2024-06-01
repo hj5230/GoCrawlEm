@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,8 +16,10 @@ const (
 	maxPage = 42
 )
 
-func CrawlPostUrls(page rune) []string {
-	url := fmt.Sprintf("https://so.news.cn/?lang=en#search/1/Huawei/" + string(page) + "/0")
+func CrawlPostUrls(page string) []string {
+	url := fmt.Sprintf("https://so.news.cn/?lang=en#search/1/Huawei/" + page + "/0")
+
+	fmt.Println("Crawling", url)
 
 	alloc, cancel := browser.AllocateDockerContext() // use docker context
 	defer cancel()
@@ -27,7 +30,6 @@ func CrawlPostUrls(page rune) []string {
 
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
-		// chromedp.WaitReady("body", chromedp.ByQuery),
 		chromedp.Sleep(3*time.Second),
 		chromedp.Evaluate(`
             Array.from(document.querySelectorAll('a')).map(a => a.href);
@@ -128,7 +130,7 @@ func Crawl() {
 	for page := 0; page < maxPage; page++ {
 		fmt.Println("Crawling page", page+1)
 
-		urls := CrawlPostUrls(rune(page))
+		urls := CrawlPostUrls(strconv.Itoa(page))
 
 		for _, url := range urls {
 			fmt.Println("Crawling", url)
