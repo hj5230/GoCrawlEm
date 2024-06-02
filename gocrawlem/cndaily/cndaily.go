@@ -1,6 +1,10 @@
 package cndaily
 
 import (
+	"fmt"
+	"log"
+	"time"
+
 	"github.com/chromedp/chromedp"
 	"github.com/hj5230/GoCrawlEm/browser"
 )
@@ -10,23 +14,60 @@ const (
 )
 
 func CrawlPostUrls() []string {
-	alloc, cancel := browser.AllocateDockerContext() // use docker context
-	defer cancel()
-	ctx, cancel := browser.CreateContext(alloc) // create a new context
+	dockerCtx, cancelDocker := browser.UseDockerContext() // Use Docker context
+	defer cancelDocker()
+
+	ctx, cancel := browser.CreateContext(dockerCtx) // Create a new browser context
 	defer cancel()
 
-	var hrefs []string
-	err := chromedp.Run(
-		ctx,
+	page := 1
+	var allHrefs []string
+
+	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
-		chromedp.Sleep(3),
-		chromedp.Evaluate(`
-			Array.from(document.querySelectorAll('h4 a')).map(a => a.href);
-		`, &hrefs), // then next page... repeat until the end
+		chromedp.Sleep(3*time.Second),
 	)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to navigate to the URL: %v", err)
 	}
 
-	return hrefs
+	for {
+		fmt.Printf("Crawling page: %d\n", page)
+
+		var hrefs []string
+		err := chromedp.Run(ctx,
+			chromedp.Evaluate(`Array.from(document.querySelectorAll('.intro a')).map(a => a.href);`, &hrefs),
+		)
+		if err != nil {
+			panic(err)
+		}
+		allHrefs = append(allHrefs, hrefs...)
+
+		fmt.Printf("Found %d urls on page %d\n", len(hrefs), page)
+
+		var nextExists bool
+		err = chromedp.Run(ctx,
+			chromedp.Evaluate(`document.querySelector('.page.rt a[title="next"]') !== null`, &nextExists),
+		)
+		if err != nil {
+			panic(err)
+		}
+		if !nextExists {
+			break
+		} else {
+			fmt.Printf("Next page is %d\n", page+1)
+		}
+
+		err = chromedp.Run(ctx,
+			chromedp.Click(`a[title="next"]`, chromedp.NodeVisible, chromedp.ByQuery),
+			chromedp.Sleep(3*time.Second),
+		)
+		if err != nil {
+			panic(err)
+		}
+		page++
+		fmt.Printf("Arrived at page %d successfully\n", page)
+	}
+
+	return allHrefs
 }
