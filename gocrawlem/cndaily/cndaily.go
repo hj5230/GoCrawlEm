@@ -21,6 +21,7 @@ type PageURLs struct {
 	PageUrls [][]string `json:"pageUrls"`
 }
 
+// deprecated
 func CrawlPostUrls() []string {
 	dockerCtx, cancelDocker := browser.UseDockerContext() // Use Docker context
 	defer cancelDocker()
