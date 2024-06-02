@@ -15,7 +15,13 @@ func CreateContext(iCtx context.Context, opts ...chromedp.ContextOption) (contex
 	return ctx, cancel
 }
 
+// deprecated
 func AllocateDockerContext() (context.Context, context.CancelFunc) {
 	allocatorCtx, cancel := chromedp.NewRemoteAllocator(context.Background(), docker)
 	return allocatorCtx, cancel
+}
+
+func UseDockerContext() (context.Context, context.CancelFunc) {
+	dockerCtx, cancel := chromedp.NewRemoteAllocator(context.Background(), docker)
+	return dockerCtx, cancel
 }
