@@ -3,7 +3,6 @@ package cndaily
 import (
 	"encoding/csv"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -36,7 +35,7 @@ func CrawlPostUrls() []string {
 		chromedp.Sleep(3*time.Second),
 	)
 	if err != nil {
-		log.Fatalf("Failed to navigate to the URL: %v", err)
+		panic(err)
 	}
 
 	for {
@@ -112,7 +111,7 @@ func CrawlPostContent(url string) (string, string, string) {
 		`, &content),
 	)
 	if err != nil {
-		log.Fatalf("%v when crawling url: %s", err, url)
+		fmt.Printf("%v when crawling url: %s", err, url)
 		return url, "", ""
 	}
 
