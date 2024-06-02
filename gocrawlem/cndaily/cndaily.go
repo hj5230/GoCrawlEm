@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -161,7 +162,11 @@ func CrawlFromJson() {
 
 	for i, url := range allUrls {
 		fmt.Println("Crawling url", i+1, "out of", len(allUrls))
+
 		title, info, content := CrawlPostContent(url)
+
+		content = strings.ReplaceAll(content, "\n", " ")
+
 		row := []string{title, info, content}
 		if err := writer.Write(row); err != nil {
 			panic(err)
