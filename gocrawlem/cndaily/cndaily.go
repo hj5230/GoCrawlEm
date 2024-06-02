@@ -90,6 +90,12 @@ func CrawlPostContent(url string) (string, string, string) {
 	var info string
 	var content string
 
+	defer func() {
+		if r := recover(); r != nil {
+			title, info, content = url, "", ""
+		}
+	}()
+
 	err := chromedp.Run(
 		ctx,
 		chromedp.Navigate(url),
@@ -111,7 +117,6 @@ func CrawlPostContent(url string) (string, string, string) {
 		`, &content),
 	)
 	if err != nil {
-		fmt.Printf("%v when crawling url: %s", err, url)
 		return url, "", ""
 	}
 
